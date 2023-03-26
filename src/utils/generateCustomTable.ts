@@ -1,7 +1,7 @@
 import { Config } from "../exports/types";
 import configFile from "../config/table.json";
 
-export function generateTable(tableConfig: Config): string[] {
+export function generateCustomTable(tableConfig: Config): string[] {
     const rows = tableConfig.rows;
     const columns = tableConfig.columns;
     //make the seperators

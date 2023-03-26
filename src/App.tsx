@@ -13,7 +13,7 @@ import ContentEditor from './components/ContentEditor'
 //my imports
 import tableConfig from "./config/table.json"
 import { Config } from './exports/types'
-import { generateTable } from './utils/generateCustomTable'
+import { generateCustomTable } from './utils/generateCustomTable'
 import CSVInput from './components/CSVInput'
 
 
@@ -35,7 +35,7 @@ function App() {
     const [alertOpen, setAlertOpen] = React.useState<boolean>(false)
 
     const handleGenerate = (customConfig?: Config) => {
-        setRowArray(generateTable(customConfig || tableConfig))// if no custom config is passed, use the current config
+        setRowArray(generateCustomTable(customConfig || tableConfig))// if no custom config is passed, use the current config
     }
 
     useEffect(() => {
