@@ -45,6 +45,7 @@ function App() {
     return (
         <div>
             <Header inputType={inputType} setInputType={setInputType} />
+            <Alert variant='filled' severity='info' >Content Editor - WIP | CSV - WIP</Alert>
             <CollapsableAlert
                 alertContent={alertContent} alertSeverity={alertSeverity} alertOpen={alertOpen}
                 setAlertContent={setAlertContent} setAlertSeverity={setAlertSeverity} setAlertOpen={setAlertOpen}
