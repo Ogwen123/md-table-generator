@@ -4,3 +4,54 @@ body {
     min-height: 100vh;
 
 }
+
+div {
+    color: white;
+}
+
+p {
+    color: white;
+}
+
+.content-editor-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 35px;
+}
+
+.content-editor-cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    width: 70px;
+    border: 1px solid white;
+    overflow: hidden;
+}
+
+.content-editor-cell-header {
+    border: 3px solid white;
+}
+
+.content-editor-tl {
+    border-top-left-radius: 5px
+}
+
+.content-editor-tr {
+    border-top-right-radius: 5px;
+}
+
+.content-editor-bl {
+    border-bottom-left-radius: 5px;
+}
+
+.content-editor-br {
+    border-bottom-right-radius: 5px;
+}
+
+.content-editor-label {
+    display: flex;
+    flex-direction: row;
+}

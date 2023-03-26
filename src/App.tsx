@@ -1,36 +1,64 @@
-import React from 'react'
-import { Button } from '@mui/material'
+import React, { useEffect } from 'react'
+import { Button, Alert, Collapse, AlertTitle, IconButton } from '@mui/material'
+import CloseIcon from "@mui/icons-material/Close"
 
 //component imports
 import ConfigBar from './components/DimensionsBar'
-import NavigationBar from './components/NavigationBar'
+import Header from './components/AppBar'
 import Output from './components/Output'
 import ControlButtons from './components/ControlButtons'
+import CollapsableAlert from './components/CollapsableAlert'
+import ContentEditor from './components/ContentEditor'
 
 //my imports
-import configFile from "./config/table.json"
+import tableConfig from "./config/table.json"
 import { Config } from './exports/types'
-import { buttonStyling } from './exports/globalStyling'
-import { generateTable } from './generateTable'
+import { generateTable } from './utils/generateCustomTable'
+import CSVInput from './components/CSVInput'
+
 
 export const defaultConfigState = {
-    rows: configFile.defaultRows,
-    columns: configFile.defaultColumns
+    rows: tableConfig.defaultRows,
+    columns: tableConfig.defaultColumns
 }
 
 function App() {
 
     const [tableConfig, setTableConfig] = React.useState<Config>(defaultConfigState)
     const [rowArray, setRowArray] = React.useState<string[]>([])
+    const [showContentEditor, setShowContentEditor] = React.useState<boolean>(true)
+    const [inputType, setInputType] = React.useState<"custom" | "csv">("custom")
 
-    const handleGenerate = () => {
-        setRowArray(generateTable(tableConfig))
+    //alert handling
+    const [alertContent, setAlertContent] = React.useState<string[]>(["Uh Oh", "You should never see this"])//title, message
+    const [alertSeverity, setAlertSeverity] = React.useState<"error" | "warning" | "info" | "success">("info")
+    const [alertOpen, setAlertOpen] = React.useState<boolean>(false)
+
+    const handleGenerate = (customConfig?: Config) => {
+        setRowArray(generateTable(customConfig || tableConfig))// if no custom config is passed, use the current config
     }
+
+    useEffect(() => {
+        handleGenerate()
+    }, [])
 
     return (
         <div>
-            <NavigationBar />
-            <ConfigBar setTableConfig={setTableConfig} tableConfig={tableConfig} />
+            <Header inputType={inputType} setInputType={setInputType} />
+            <CollapsableAlert
+                alertContent={alertContent} alertSeverity={alertSeverity} alertOpen={alertOpen}
+                setAlertContent={setAlertContent} setAlertSeverity={setAlertSeverity} setAlertOpen={setAlertOpen}
+            />
+            {inputType === "custom" ?
+                <div className="custom-input">
+                    <ConfigBar setTableConfig={setTableConfig} tableConfig={tableConfig} />
+                    <ContentEditor tableConfig={tableConfig} showEditor={showContentEditor} setShowEditor={setShowContentEditor} />
+                </div>
+                :
+                <div className="csv-input">
+                    <CSVInput />
+                </div>
+            }
             <ControlButtons setTableConfig={setTableConfig} tableConfig={tableConfig} generateTable={handleGenerate} setRowArray={setRowArray} rowArray={rowArray} />
             <Output rowArray={rowArray} />
         </div>

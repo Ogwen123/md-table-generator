@@ -3,6 +3,8 @@ export type Config = {
     columns: number
 }
 
+export type AlertSeverity = "error" | "warning" | "info" | "success"
+
 export module ConfigTypes {
     export type ConfigBar = {
         defaultRows: number,

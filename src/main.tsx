@@ -25,6 +25,9 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: "Mono Font",
+        allVariants: {
+            color: "white"
+        }
     },
     components: {
         MuiCssBaseline: {

@@ -1,22 +1,22 @@
 import React from 'react'
-import { Button, IconButton, Snackbar } from '@mui/material'
+import { Button, IconButton, Snackbar, Alert } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 
 //component imports
 import ConfigBar from './DimensionsBar'
-import NavigationBar from './NavigationBar'
+import NavigationBar from './AppBar'
 import Output from './Output'
 
-//my imports
+//project imports
 import configFile from "../config/controlButtons.json"
 import { defaultConfigState } from '../App'
 import { Config } from '../exports/types'
-import { buttonStyling } from '../exports/globalStyling'
+import { buttonStyling } from '../exports/styling'
 
 interface ControlButtonsProps {
     setTableConfig: (config: Config) => void,
     tableConfig: Config,
-    generateTable: () => void,
+    generateTable: (customConfig?: Config) => void,
     setRowArray: (rowArray: string[]) => void
     rowArray: string[]
 }
@@ -35,7 +35,7 @@ const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setRowArra
         //do reset
         setTableConfig(defaultConfigState)
         setOpenResetSnackbar(true)
-        setRowArray([])
+        generateTable(defaultConfigState)
     }
 
     const handleUndo = () => {
@@ -50,7 +50,7 @@ const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setRowArra
 
     const snackbarAction = (
         <React.Fragment>
-            <Button variant="outlined" color="primary" onClick={handleUndo} >
+            <Button variant="outlined" color="secondary" onClick={handleUndo} >
                 Undo
             </Button>
             <IconButton
@@ -84,9 +84,9 @@ const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setRowArra
             <Snackbar
                 open={openResetSnackbar}
                 autoHideDuration={configFile.resetSnackBarDuration}
-                message="Table Reset"
-                action={snackbarAction}
-            />
+            >
+                <Alert action={snackbarAction} variant="filled" severity="info" >Reset Table</Alert>
+            </Snackbar>
         </div>
     )
 }

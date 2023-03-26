@@ -1,9 +1,9 @@
 import React from 'react'
 import { Paper, Typography, Slider, Grid, Divider } from "@mui/material"
 
-//my imports
+//project imports
 import { Config, ConfigTypes } from '../exports/types'
-import { paperLabelStyling, generalSpacing } from '../exports/globalStyling'
+import { paperLabelStyling, generalSpacing } from '../exports/styling'
 import configFile from "../config/configBar.json"
 
 interface ConfigBarProps {
@@ -43,7 +43,7 @@ const ConfigBar = ({ setTableConfig, tableConfig }: ConfigBarProps) => {
     }
 
     const sliderLabelStyling = {
-        color: "white",
+        color: "secondary",
         marginLeft: "1rem",
         marginRight: "1rem",
     }

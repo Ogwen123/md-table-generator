@@ -1,5 +1,5 @@
-import { Config } from "./exports/types";
-import configFile from "./config/table.json";
+import { Config } from "../exports/types";
+import configFile from "../config/table.json";
 
 export function generateTable(tableConfig: Config): string[] {
     const rows = tableConfig.rows;
@@ -7,7 +7,7 @@ export function generateTable(tableConfig: Config): string[] {
     //make the seperators
     let headerSeperator: string = "-";
     let whiteSpace: string = " ";
-    for (let i = 0; i < configFile.defaultCloumnWidth; i++) { headerSeperator += "-"; whiteSpace += " " }
+    for (let i = 0; i < configFile.defaultCloumnWidth - 1; i++) { headerSeperator += "-"; whiteSpace += " " }
     const rowArray: string[] = []
     for (let i = 0; i < rows + 2; i++) {//plus 2 because of header row and header seperator row
         const tempRowArray: string[] = []
@@ -20,9 +20,8 @@ export function generateTable(tableConfig: Config): string[] {
         }
         rowArray.push(tempRowArray.join(""))
     }
-    for (let i = 0; i < rows + 2; i++) {
+    for (let i = 0; i < rows + 2; i++) {//add the end pipe
         rowArray[i] = rowArray[i] + "|"
     }
-    console.log(rowArray)
-    return (rowArray)
+    return rowArray
 }

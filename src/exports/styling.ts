@@ -1,6 +1,8 @@
 export const generalSpacing = {
     marginLeft: "4rem",
     marginRight: "4rem",
+    marginTop: "0.5rem",
+    marginBottom: "0.5rem"
 }
 
 export const paperLabelStyling = {
@@ -12,7 +14,7 @@ export const paperLabelStyling = {
 
 export const buttonStyling = {
     ...generalSpacing,
-    marginTop: "1rem",
-    backgroundColor: "primary.main",
+    marginTop: "2rem",
+    backgroundColor: "primary.main"
 }
 
