@@ -1,6 +1,7 @@
 export type Config = {
     rows: number,
-    columns: number
+    columns: number,
+    content: Record<string, string>
 }
 
 export type AlertSeverity = "error" | "warning" | "info" | "success"

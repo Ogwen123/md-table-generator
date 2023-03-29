@@ -12,7 +12,7 @@ import font from "./assets/RobotoMono-Regular.ttf"
 const theme = createTheme({
     palette: {
         primary: {
-            main: teal[800],
+            main: teal[600],
             dark: grey[900]
         },
         secondary: {

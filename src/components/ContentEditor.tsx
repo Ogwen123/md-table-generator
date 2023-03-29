@@ -4,26 +4,55 @@ import { Stack, Paper, Typography, Switch } from '@mui/material'
 //project imports
 import { Config } from '../exports/types'
 import { generalSpacing, paperLabelStyling } from '../exports/styling'
+import configFile from "../config/table.json"
 
 interface ContentEditorProps {
     tableConfig: Config,
+    setTableConfig: (config: Config) => void,
     showEditor: boolean,
-    setShowEditor: (showEditor: boolean) => void
+    setShowEditor: (showEditor: boolean) => void,
 }
 
-const ContentEditor = ({ tableConfig, showEditor, setShowEditor }: ContentEditorProps) => {
+const ContentEditor = ({ tableConfig, setTableConfig, showEditor, setShowEditor }: ContentEditorProps) => {
+    const rowNumbers: number[] = [...Array(tableConfig.rows)]//make number array for rows
+    const columnNumbers: number[] = [...Array(tableConfig.columns)]//make number array for columns
 
-    const [contentStorage, setContentStorage] = React.useState<string[][]>([[]])
+    let initContentEditable: boolean[][] = Array(configFile.maxRows).fill(Array(configFile.maxColumns).fill(false))//make nested arrays for storing the tables content edtiable states
 
-    //make number array for rows
-    const rowNumbers: number[] = [...Array(tableConfig.rows + 1)]
-
-    //make number array for columns
-    const columnNumbers: number[] = [...Array(tableConfig.columns)]
+    const [contentEditableArray, setContentEditableArray] = React.useState<boolean[][]>(initContentEditable)
 
     const updateContentStorage = (id: string, content: string | null) => {
+        if (content === null) return
         let row = parseInt(id.split("-")[0])
         let column = parseInt(id.split("-")[1])
+        if (isNaN(row) || isNaN(column)) return
+        setTableConfig({ ...tableConfig, content: { ...tableConfig.content, [id]: content } })
+    }
+
+    const makeClassName = (rowNumber: number, columnNumber: number): string => {
+        let classname = "content-editor-cell"
+        //change appearance of headers
+        if (rowNumber === 0) {
+            classname += " content-editor-cell-header"
+        }
+        //round corners of outer cells
+        if (rowNumber === 0) {
+            if (columnNumber === 0) {
+                classname += " content-editor-tl"
+            }
+            if (columnNumber === columnNumbers.length - 1) {
+                classname += " content-editor-tr"
+            }
+        }
+        if (rowNumber === rowNumbers.length - 1) {
+            if (columnNumber === 0) {
+                classname += " content-editor-bl"
+            }
+            if (columnNumber === columnNumbers.length - 1) {
+                classname += " content-editor-br"
+            }
+        }
+        return classname
     }
 
     const barStyling = {
@@ -62,37 +91,21 @@ const ContentEditor = ({ tableConfig, showEditor, setShowEditor }: ContentEditor
                                     >
                                         {
                                             columnNumbers.map((ph, columnNumber) => {
-                                                let classname = "content-editor-cell"
-                                                //change appearance of headers
-                                                if (rowNumber === 0) {
-                                                    classname += " content-editor-cell-header"
-                                                }
-                                                //round corners of outer cells
-                                                if (rowNumber === 0) {
-                                                    if (columnNumber === 0) {
-                                                        classname += " content-editor-tl"
-                                                    }
-                                                    if (columnNumber === columnNumbers.length - 1) {
-                                                        classname += " content-editor-tr"
-                                                    }
-                                                }
-                                                if (rowNumber === rowNumbers.length - 1) {
-                                                    if (columnNumber === 0) {
-                                                        classname += " content-editor-bl"
-                                                    }
-                                                    if (columnNumber === columnNumbers.length - 1) {
-                                                        classname += " content-editor-br"
-                                                    }
-                                                }
+                                                let classname = makeClassName(rowNumber, columnNumber)
                                                 return (
                                                     <div
                                                         className={classname}
-                                                        onClick={(e) => e.currentTarget.contentEditable = "true"}
+                                                        onClick={(e) => {
+                                                            let newArray = [...contentEditableArray]
+                                                            newArray[rowNumber][columnNumber] = true
+                                                            setContentEditableArray(newArray)
+                                                        }}
+                                                        contentEditable={contentEditableArray[rowNumber][columnNumber]}
+                                                        suppressContentEditableWarning={true}
                                                         key={rowNumber + "-" + columnNumber}
                                                         id={rowNumber + "-" + columnNumber}
-                                                        onInput={(e) => updateContentStorage(e.currentTarget.id, e.currentTarget.textContent)}
+                                                        onBlur={(e) => updateContentStorage(e.currentTarget.id, e.currentTarget.textContent)}
                                                     >
-
                                                     </div>
                                                 )
                                             })

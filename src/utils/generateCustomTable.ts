@@ -1,27 +1,52 @@
 import { Config } from "../exports/types";
 import configFile from "../config/table.json";
 
-export function generateCustomTable(tableConfig: Config): string[] {
+export function generateCustomTable(tableConfig: Config): any[] {
     const rows = tableConfig.rows;
     const columns = tableConfig.columns;
-    //make the seperators
-    let headerSeperator: string = "-";
-    let whiteSpace: string = " ";
-    for (let i = 0; i < configFile.defaultCloumnWidth - 1; i++) { headerSeperator += "-"; whiteSpace += " " }
-    const rowArray: string[] = []
-    for (let i = 0; i < rows + 2; i++) {//plus 2 because of header row and header seperator row
-        const tempRowArray: string[] = []
-        for (let j = 0; j < columns; j++) {
-            if (i === 1) {// if header seperator row
-                tempRowArray.push("|" + headerSeperator)
-            } else {
-                tempRowArray.push("|" + whiteSpace)
-            }
+
+    //find longest item in each column to make the seperators straight
+    const fieldLengths: number[] = Array(columns).fill(configFile.minColumnWidth)
+    for (const key of Object.keys(tableConfig.content)) {
+        const column: number = parseInt(key.split("-")[1])
+        if (tableConfig.content[key].length > fieldLengths[column]) {
+            fieldLengths[column] = tableConfig.content[key].length
         }
-        rowArray.push(tempRowArray.join(""))
     }
-    for (let i = 0; i < rows + 2; i++) {//add the end pipe
-        rowArray[i] = rowArray[i] + "|"
+
+    //check all the headers are filled - changed my mind, headers can be empty
+    //for (let i = 0; i < columns; i++) {
+    //    if (tableConfig.content[`0-${i}`] === "") {
+    //        return [false, "All headers must be filled"]
+    //    }
+    //}
+
+    const rowArray: string[] = []
+    //make header row
+    let headerArray = []
+    for (let i = 0; i < columns; i++) {
+        if (tableConfig.content[`0-${i}`] === "") headerArray.push("|" + " ".padEnd(fieldLengths[i], " "))
+        else headerArray.push("|" + tableConfig.content[`0-${i}`].padEnd(fieldLengths[i]))
     }
+    rowArray.push(headerArray.join("") + "|")
+
+    //make header seperator
+    let headerSeperatorArray: string[] = []
+    for (let i = 0; i < columns; i++) {
+        headerSeperatorArray.push("|" + "-".padEnd(fieldLengths[i], "-"))
+    }
+    rowArray.push(headerSeperatorArray.join("") + "|")
+
+    //make body
+    for (let i = 0; i < rows - 1; i++) {
+        let tempRowArray: string[] = []
+        for (let j = 0; j < columns; j++) {
+            const currentKey = `${i + 1}-${j}`
+            if (tableConfig.content[currentKey] === "") tempRowArray.push("|" + " ".padEnd(fieldLengths[j], " "))
+            else tempRowArray.push("|" + tableConfig.content[currentKey].padEnd(fieldLengths[j]))//add 2 top skip header
+        }
+        rowArray.push(tempRowArray.join("") + "|")
+    }
+    //console.log(columns)
     return rowArray
 }

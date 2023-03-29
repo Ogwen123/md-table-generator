@@ -1,5 +1,9 @@
 {
-    "defaultCloumnWidth": 5,
+    "minColumnWidth": 5,
     "defaultRows": 1,
-    "defaultColumns": 1
+    "defaultColumns": 1,
+    "maxColumns": 25,
+    "maxRows": 25,
+    "minColumns": 1,
+    "minRows": 2
 }
