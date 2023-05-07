@@ -1,17 +1,18 @@
 import React from 'react'
 import { Paper, Typography, Slider, Grid, Divider } from "@mui/material"
 
-//my imports
+//project imports
 import { Config, ConfigTypes } from '../exports/types'
-import { paperLabelStyling, generalSpacing } from '../exports/globalStyling'
-import configFile from "../config/configBar.json"
+import { paperLabelStyling, generalSpacing } from '../exports/styling'
+import configFile from "../config/table.json"
 
 interface ConfigBarProps {
     setTableConfig: (config: Config) => void
-    tableConfig: Config
+    tableConfig: Config,
+    setDimensionTracker: (dimensionTracker: number[]) => void
 }
 
-const ConfigBar = ({ setTableConfig, tableConfig }: ConfigBarProps) => {
+const ConfigBar = ({ setTableConfig, tableConfig, setDimensionTracker }: ConfigBarProps) => {
 
     //const [rows, setRows] = React.useState<number>((configFile as ConfigTypes.ConfigBar).defaultRows)// for displaying the number of rows next to the slider
     //const [columns, setColumns] = React.useState<number>((configFile as ConfigTypes.ConfigBar).defaultColumns)// for displaying the number of cloumns next to the slider
@@ -19,11 +20,13 @@ const ConfigBar = ({ setTableConfig, tableConfig }: ConfigBarProps) => {
     //event handlers
     const handleRowChange = (event: Event, newValue: number | number[]) => {
         setTableConfig({ ...tableConfig, rows: (newValue as number) })
+        setDimensionTracker([newValue as number, tableConfig.columns])
         //setRows(newValue as number)
     }
 
     const handleColumnChange = (event: Event, newValue: number | number[]) => {
         setTableConfig({ ...tableConfig, columns: (newValue as number) })
+        setDimensionTracker([tableConfig.rows, newValue as number])
         //setColumns(newValue as number)
     }
 
@@ -43,7 +46,7 @@ const ConfigBar = ({ setTableConfig, tableConfig }: ConfigBarProps) => {
     }
 
     const sliderLabelStyling = {
-        color: "white",
+        color: "secondary",
         marginLeft: "1rem",
         marginRight: "1rem",
     }
@@ -57,7 +60,7 @@ const ConfigBar = ({ setTableConfig, tableConfig }: ConfigBarProps) => {
                 <Grid container spacing={2}>
                     <Grid item className='rows-div'>
                         <Typography component="p" sx={sliderLabelStyling}>
-                            {tableConfig.rows} {tableConfig.rows !== 1 ? "Rows" : "Row"} {/*change label according to number of rows*/}
+                            {tableConfig.rows - 1} {tableConfig.rows !== 1 ? "Rows" : "Row"} {/*change label according to number of rows*/}
                         </Typography>
                         <Slider
                             color="secondary"
@@ -65,7 +68,7 @@ const ConfigBar = ({ setTableConfig, tableConfig }: ConfigBarProps) => {
                             max={configFile.maxRows}
                             step={1}
                             defaultValue={1}
-                            value={tableConfig.rows}
+                            value={tableConfig.rows - 1}
                             sx={sliderStyling}
                             onChange={handleRowChange}
                         />

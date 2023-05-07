@@ -1,8 +1,15 @@
 import * as React from 'react';
 import { AppBar, Box, Toolbar, Typography, Button, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 
-export default function ButtonAppBar() {
+//component imports
+import InputSwitcher from './InputSwitcher';
+
+interface InputSwitcherProps {
+    inputType: "custom" | "csv",
+    setInputType: (inputType: "custom" | "csv") => void
+}
+
+const Header = ({ inputType, setInputType }: InputSwitcherProps) => {
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" sx={{ padding: "0.5rem" }}>
@@ -10,8 +17,11 @@ export default function ButtonAppBar() {
                     <Typography variant="h4" component="div">
                         Table Generator
                     </Typography>
+                    <InputSwitcher inputType={inputType} setInputType={setInputType} />
                 </Toolbar>
             </AppBar>
         </Box>
     );
 }
+
+export default Header;
