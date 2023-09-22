@@ -2,9 +2,9 @@ import React from 'react'
 import { Paper, Typography, Slider, Grid, Divider } from "@mui/material"
 
 //project imports
-import { Config, ConfigTypes } from '../exports/types'
-import { paperLabelStyling, generalSpacing } from '../exports/styling'
-import configFile from "../config/table.json"
+import { Config, ConfigTypes } from '../../exports/types'
+import { paperLabelStyling, generalSpacing } from '../../exports/styling'
+import configFile from "../../config/table.json"
 
 interface ConfigBarProps {
     setTableConfig: (config: Config) => void

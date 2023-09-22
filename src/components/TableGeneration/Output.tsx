@@ -2,7 +2,7 @@ import { Card, Paper, Typography } from '@mui/material'
 import React from 'react'
 
 //project imports
-import { paperLabelStyling, generalSpacing } from '../exports/styling'
+import { paperLabelStyling, generalSpacing } from '../../exports/styling'
 
 interface OutputProps {
     rowArray: string[]

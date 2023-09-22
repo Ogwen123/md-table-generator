@@ -1,27 +1,177 @@
 import * as React from 'react';
-import { AppBar, Box, Toolbar, Typography, Button, IconButton } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Tooltip, MenuItem, Link } from "@mui/material"
 
 //component imports
-import InputSwitcher from './InputSwitcher';
+import InputSwitcher from './TableGeneration/InputSwitcher';
+import { UserData } from '../exports/types';
+import { hasJWT } from '../utils/utils';
 
-interface InputSwitcherProps {
-    inputType: "custom" | "csv",
-    setInputType: (inputType: "custom" | "csv") => void
+interface NavigationBarProps {
+    inputType: 'custom' | 'csv',
+    setInputType: (inputType: 'custom' | 'csv') => void,
+    user: UserData | undefined,
+    setUser: (user: UserData | undefined) => void
 }
 
-const Header = ({ inputType, setInputType }: InputSwitcherProps) => {
+const Header = ({ inputType, setInputType, user, setUser }: NavigationBarProps) => {
+    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorElNav(event.currentTarget);
+    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorElUser(event.currentTarget);
+    const handleCloseNavMenu = () => setAnchorElNav(null);
+    const handleCloseUserMenu = () => setAnchorElUser(null);
+
+    const logout = () => {
+        localStorage.removeItem("user")
+        setUser(undefined)
+    }
+
     return (
-        <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static" sx={{ padding: "0.5rem" }}>
-                <Toolbar>
-                    <Typography variant="h4" component="div">
+        <AppBar position="static">
+            <Container maxWidth={false}>
+                <Toolbar disableGutters>
+                    <Typography
+                        variant="h5"
+                        noWrap
+                        component="a"
+                        href="/"
+                        sx={{
+                            display: { xs: 'none', md: 'flex' },
+                            color: 'inherit',
+                            flexGrow: 0,
+                            textDecoration: 'none',
+                            marginLeft: "2.5rem"
+                        }}
+                    >
                         Table Generator
                     </Typography>
-                    <InputSwitcher inputType={inputType} setInputType={setInputType} />
+
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                        <IconButton
+                            size="large"
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleOpenNavMenu}
+                            color="inherit"
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorElNav}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left',
+                            }}
+                            open={Boolean(anchorElNav)}
+                            onClose={handleCloseNavMenu}
+                            sx={{
+                                display: { xs: 'block', md: 'none' },
+                            }}
+                        >
+                            {/*pages go here if/when i add them */}
+                        </Menu>
+                    </Box>
+                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                        <InputSwitcher inputType={inputType} setInputType={setInputType} />
+                    </Box>
+                    {/* ---------------------------switch between mobile and desktop layout */}
+                    <Typography
+                        variant="h5"
+                        noWrap
+                        component="a"
+                        href=""
+                        sx={{
+                            mr: 2,
+                            display: { xs: 'flex', md: 'none' },
+                            flexGrow: 1,
+                            color: 'inherit',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        Table Generator
+                    </Typography>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                    </Box>
+
+                    <Box sx={{ flexGrow: 0, marginRight: "2.5rem" }}>
+                        <Tooltip title="Open settings">
+                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                <Avatar />
+                            </IconButton>
+                        </Tooltip>
+                        <Menu
+                            sx={{ mt: '45px' }}
+                            id="menu-appbar"
+                            anchorEl={anchorElUser}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={Boolean(anchorElUser)}
+                            onClose={handleCloseUserMenu}
+                        >
+                            {/*put settings here for user */}
+                            {user || hasJWT() ?
+                                /*shown is someone is logged in*/ <div>
+                                    <Link
+                                        href="/user"
+                                        sx={{ textDecoration: 'none' }}
+                                    >
+                                        <MenuItem
+                                            onClick={handleCloseUserMenu}
+                                        >
+                                            <Typography textAlign="center">Dashboard</Typography>
+                                        </MenuItem>
+                                    </Link>
+                                    <MenuItem
+                                        onClick={logout}
+                                    >
+                                        <Typography textAlign="center">Logout</Typography>
+                                    </MenuItem>
+                                </div>
+                                :
+                                /*shown if noone is logged in*/ <div>
+                                    <Link
+                                        href="/user/login"
+                                        sx={{ textDecoration: 'none' }}
+                                    >
+                                        <MenuItem
+                                            onClick={handleCloseUserMenu}
+                                        >
+                                            <Typography textAlign="center">Login</Typography>
+                                        </MenuItem>
+                                    </Link>
+                                    <Link
+                                        href="/user/register"
+                                        sx={{ textDecoration: 'none' }}
+                                    >
+                                        <MenuItem
+                                            onClick={handleCloseUserMenu}
+                                        >
+                                            <Typography textAlign="center">Register</Typography>
+                                        </MenuItem>
+                                    </Link>
+                                </div>
+                            }
+                        </Menu>
+                    </Box>
                 </Toolbar>
-            </AppBar>
-        </Box>
+            </Container>
+        </AppBar>
     );
 }
-
 export default Header;

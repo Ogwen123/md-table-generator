@@ -1,5 +1,10 @@
-export function generateDelimitedTable(csvString: string, delimiter: string): any[] {
+import { AlertSeverity } from "../exports/types"
+
+export function generateDelimitedTable(csvString: string, delimiter: string, doAlert: (content: string[], severity: AlertSeverity) => void): any[] {
     const csvRows = csvString.split("\n")
+    if (csvString === "") {
+        doAlert(["No Data", "Enter CSV data to convert!"], "warning")
+    }
     //find longest item in each column to make the seperators straight
     let longestFields = Array(csvRows[0].split(delimiter).length).fill(0)
     let longestRowLength = 0

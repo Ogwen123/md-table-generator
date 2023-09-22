@@ -1,21 +1,24 @@
-import React, { useEffect } from 'react'
-import { Button, Alert, Collapse, AlertTitle, IconButton } from '@mui/material'
-import CloseIcon from "@mui/icons-material/Close"
+import React from 'react'
+import { Route, Routes } from 'react-router-dom'
+import axios from 'axios'
 
 //component imports
-import ConfigBar from './components/DimensionsBar'
-import Header from './components/AppBar'
-import Output from './components/Output'
-import ControlButtons from './components/ControlButtons'
-import CollapsableAlert from './components/CollapsableAlert'
-import ContentEditor from './components/ContentEditor'
+import Home from './components/Home'
+import PageHandler from './components/PageHandler'
+import Login from './components/User/Login'
 
 //my imports
 import configFile from "./config/table.json"
-import { Config, AlertSeverity } from './exports/types'
+import { Config, AlertSeverity, UserData } from './exports/types'
 import { generateCustomTable } from './utils/generateCustomTable'
-import CSVInput from './components/CSVInput'
 import { generateDelimitedTable } from './utils/generateDelimitedTable'
+import Dashboard from './components/User/Dashboard'
+import Register from './components/User/Register'
+import RouteGuard from './components/RouteGuard'
+import NotFound from './components/Error/NotFound'
+import { hasJWT } from './utils/utils'
+import Footer from './components/Footer'
+
 
 let initContentStorage: Record<string, string> = { "0-0": "", "1-0": "" };
 
@@ -27,10 +30,12 @@ export const defaultConfigState = {
 
 function App() {
 
+
     const [tableConfig, setTableConfig] = React.useState<Config>(defaultConfigState)
     const [rowArray, setRowArray] = React.useState<string[]>([])
     const [showContentEditor, setShowContentEditor] = React.useState<boolean>(true)
     const [inputType, setInputType] = React.useState<"custom" | "csv">("custom")
+    const [resetTrigger, setResetTrigger] = React.useState<boolean>(false)
 
     //custom specific
     const [dimensionTracker, setDimensionTracker] = React.useState<number[]>([2, 1])//used to force a re-render when dimensions are changed
@@ -43,6 +48,9 @@ function App() {
     const [alertContent, setAlertContent] = React.useState<string[]>(["Uh Oh", "You should never see this"])//title, message
     const [alertSeverity, setAlertSeverity] = React.useState<AlertSeverity>("info")
     const [alertOpen, setAlertOpen] = React.useState<boolean>(false)
+
+    //account storage
+    const [user, setUser] = React.useState<UserData>()
 
     //update content object when more rows or columns are added
     React.useEffect(() => {
@@ -59,10 +67,11 @@ function App() {
         const rowArray = generateCustomTable(customConfig || tableConfig)
         if (rowArray[1] === false) setRowArray([rowArray[0]])
         else setRowArray(rowArray)// if no custom config is passed, use the current config
+        //console.log(tableConfig)
     }
 
     const handleCSVGenerate = () => {
-        const rowArray = generateDelimitedTable(csvInputContent, delimiter)
+        const rowArray = generateDelimitedTable(csvInputContent, delimiter, doAlert)
         if (rowArray[1] === false) setRowArray([rowArray[0]])
         else setRowArray(rowArray)
     }
@@ -74,58 +83,84 @@ function App() {
         setAlertOpen(true)
     }
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (inputType === "custom") handleCustomGenerate()
-        else handleCSVGenerate()
+        else if (inputType === "csv") handleCSVGenerate()
     }, [])
+
+    React.useEffect(() => {//set user data from local storage on first render
+        if (!localStorage.getItem("user")) return
+        setUser(JSON.parse(localStorage.getItem("user")!))
+    }, [])
+
+    //axios defaults
+    if (user || hasJWT()) {
+        axios.defaults.headers.post["token"] = user?.token
+        axios.defaults.headers.get["token"] = user?.token
+    }
+
+    const homeProps = {
+        inputType,
+        tableConfig,
+        setTableConfig,
+        setDimensionTracker,
+        rowArray,
+        setRowArray,
+        csvInputContent,
+        setCsvInputContent,
+        delimiter,
+        setDelimiter,
+        doAlert,
+        showContentEditor,
+        setShowContentEditor,
+        handleCustomGenerate,
+        handleCSVGenerate,
+        resetTrigger,
+        setResetTrigger
+    }
+
+    const pageHandlerProps = {
+        inputType,
+        setInputType,
+        alertContent,
+        alertSeverity,
+        alertOpen,
+        setAlertContent,
+        setAlertSeverity,
+        setAlertOpen,
+        user,
+        setUser
+    }
+
+    const loginProps = {
+        user,
+        setUser,
+        doAlert
+    }
+
+    const registerProps = {
+        doAlert
+    }
+
+    const dashboardProps = {
+        ...loginProps,
+        setTableConfig
+    }
 
     return (
         <div>
-            <Header inputType={inputType} setInputType={setInputType} />
-            {/*<Alert variant='filled' severity='info' >Content Editor - WIP</Alert>*/}
-            <CollapsableAlert
-                alertContent={alertContent}
-                alertSeverity={alertSeverity}
-                alertOpen={alertOpen}
-                setAlertContent={setAlertContent}
-                setAlertSeverity={setAlertSeverity}
-                setAlertOpen={setAlertOpen}
-            />
-            {inputType === "custom" ?
-                <div className="custom-input">
-                    <ConfigBar
-                        setTableConfig={setTableConfig}
-                        tableConfig={tableConfig}
-                        setDimensionTracker={setDimensionTracker}
-                    />
-                    <ContentEditor
-                        tableConfig={tableConfig}
-                        setTableConfig={setTableConfig}
-                        showEditor={showContentEditor}
-                        setShowEditor={setShowContentEditor}
-                    />
-                </div>
-                :
-                <div className="csv-input">
-                    <CSVInput
-                        csvInputContent={csvInputContent}
-                        setCsvInputContent={setCsvInputContent}
-                        doAlert={doAlert}
-                        delimiter={delimiter}
-                        setDelimiter={setDelimiter}
-                    />
-                </div>
-            }
-            <ControlButtons
-                setTableConfig={setTableConfig}
-                tableConfig={tableConfig}
-                generateTable={inputType === "custom" ? handleCustomGenerate : handleCSVGenerate}
-                setRowArray={setRowArray}
-                rowArray={rowArray}
-            />
-            <Output
-                rowArray={rowArray}
-            />
+            <Routes>
+                <Route path="/" element={<PageHandler {...pageHandlerProps} />}>
+                    <Route index element={<Home {...homeProps} />} />
+                    <Route path="/user">
+                        <Route index element={<RouteGuard user={user} element={<Dashboard {...dashboardProps} />} />} />
+                        <Route path="/user/login" element={<Login {...loginProps} />} />
+                        <Route path="/user/register" element={<Register {...registerProps} />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                </Route>
+            </Routes>
+
         </div>
     )
 }

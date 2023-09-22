@@ -2,9 +2,8 @@ import React from 'react'
 import { Typography, Paper, Button } from '@mui/material'
 
 //project imports
-import { generalSpacing, paperLabelStyling } from '../exports/styling'
-import { generateDelimitedTable } from '../utils/generateDelimitedTable'
-import { AlertSeverity } from '../exports/types'
+import { generalSpacing, paperLabelStyling } from '../../exports/styling'
+import { AlertSeverity } from '../../exports/types'
 
 interface CSVInputProps {
     csvInputContent: string,
@@ -26,6 +25,7 @@ const CSVInput = ({ csvInputContent, setCsvInputContent, delimiter, setDelimiter
         padding: "1rem",
         display: "flex",
         flexDirection: "row",
+        marginBottom: "0"
     }
 
     return (
@@ -35,7 +35,7 @@ const CSVInput = ({ csvInputContent, setCsvInputContent, delimiter, setDelimiter
             </Typography>
             <Paper elevation={12} variant='elevation' sx={barStyling} >
                 <form>
-                    <p>Delimiter(, | ; etc): </p>
+                    <p>Delimiter: </p>
                     <input
                         type='text'
                         className="kdfbgkjd"
@@ -57,7 +57,6 @@ const CSVInput = ({ csvInputContent, setCsvInputContent, delimiter, setDelimiter
                     ></textarea>
                 </form>
             </Paper>
-            <Button onClick={(e) => generateDelimitedTable(csvInputContent, delimiter)} ></Button>
         </div>
     )
 }
