@@ -9,7 +9,7 @@ import { generalSpacing } from '../exports/styling'
 
 interface AlertProps {
   alertContent: string[],
-  alertSeverity: AlertSeverity
+  alertSeverity: AlertSeverity,
   alertOpen: boolean,
   setAlertContent: (alertContent: string[]) => void,
   setAlertSeverity: (alertSeverity: AlertSeverity) => void,

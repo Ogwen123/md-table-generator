@@ -1,6 +1,6 @@
 import { AlertSeverity } from "../exports/types"
 
-export function generateDelimitedTable(csvString: string, delimiter: string, doAlert: (content: string[], severity: AlertSeverity) => void): any[] {
+export function generateDelimitedTable(csvString: string, delimiter: string, doAlert: (content: string[], severity: AlertSeverity) => void): string | [boolean, string] {
     const csvRows = csvString.split("\n")
     if (csvString === "") {
         doAlert(["No Data", "Enter CSV data to convert!"], "warning")
@@ -19,7 +19,7 @@ export function generateDelimitedTable(csvString: string, delimiter: string, doA
             longestRowLength = fieldArray.length
         }
         if (fieldArray.length > longestRowLength) {
-            return [false, "All columns should have the same number of fields"]
+            return [false, "All columns should have the same number of fields."]
         }
     }
 
@@ -52,5 +52,5 @@ export function generateDelimitedTable(csvString: string, delimiter: string, doA
     }
     console.log(csvRowsArray)
 
-    return csvRowsArray
+    return csvRowsArray.join("\n")
 }

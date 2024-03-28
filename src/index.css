@@ -75,3 +75,7 @@ p {
     border-width: 2px;
     outline: none;
 }
+
+.mono {
+    font-family: monospace;
+}

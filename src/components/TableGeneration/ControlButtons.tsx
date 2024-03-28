@@ -15,19 +15,19 @@ interface ControlButtonsProps {
     setTableConfig: (config: Config) => void,
     tableConfig: Config,
     generateTable: any,
-    setRowArray: (rowArray: string[]) => void
-    rowArray: string[],
+    setTableOutput: (tableOutput: string) => void
+    tableOutput: string,
     updateResetTrigger: () => void,
     doAlert: (content: string[], severity: AlertSeverity) => void,
     inputType: "custom" | "csv"
 }
 
 
-const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setRowArray, rowArray, updateResetTrigger, doAlert, inputType }: ControlButtonsProps) => {
+const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setTableOutput, tableOutput, updateResetTrigger, doAlert, inputType }: ControlButtonsProps) => {
 
     const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false)
     const [undoConfigState, setUndoConfigState] = React.useState<Config>(defaultConfigState)
-    const [undoRowState, setUndoRowState] = React.useState<string[]>([])
+    const [undoOutputState, setUndoOutputState] = React.useState<string>("")
     const [snackbarState, setSnackbarState] = React.useState<"reset" | "save" | "">("")
 
     const [openSaveDialog, setOpenSaveDialog] = React.useState<boolean>(false)
@@ -37,7 +37,7 @@ const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setRowArra
     const handleReset = () => {
         //store previous state for undo function
         setUndoConfigState(tableConfig)
-        setUndoRowState(rowArray)
+        setUndoOutputState(tableOutput)
         //do reset
         setTableConfig(defaultConfigState)
         setSnackbarState("reset")
@@ -50,7 +50,7 @@ const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setRowArra
         console.log(undoConfigState)
         setTableConfig(undoConfigState)
         setOpenSnackbar(false)
-        setRowArray(undoRowState)
+        setTableOutput(undoOutputState)
     }
 
     const handleGenerate = () => {

@@ -32,7 +32,7 @@ function App() {
 
 
     const [tableConfig, setTableConfig] = React.useState<Config>(defaultConfigState)
-    const [rowArray, setRowArray] = React.useState<string[]>([])
+    const [tableOutput, setTableOutput] = React.useState<string>("You output will appear here")
     const [showContentEditor, setShowContentEditor] = React.useState<boolean>(true)
     const [inputType, setInputType] = React.useState<"custom" | "csv">("custom")
     const [resetTrigger, setResetTrigger] = React.useState<boolean>(false)
@@ -64,16 +64,18 @@ function App() {
     }, [dimensionTracker])
 
     const handleCustomGenerate = (customConfig?: Config) => {
-        const rowArray = generateCustomTable(customConfig || tableConfig)
-        if (rowArray[1] === false) setRowArray([rowArray[0]])
-        else setRowArray(rowArray)// if no custom config is passed, use the current config
+        const tableOutput = generateCustomTable(customConfig || tableConfig)
+        setTableOutput(tableOutput)// if no custom config is passed, use the current config
         //console.log(tableConfig)
     }
 
     const handleCSVGenerate = () => {
-        const rowArray = generateDelimitedTable(csvInputContent, delimiter, doAlert)
-        if (rowArray[1] === false) setRowArray([rowArray[0]])
-        else setRowArray(rowArray)
+        const tableOutput = generateDelimitedTable(csvInputContent, delimiter, doAlert)
+        if (tableOutput instanceof Array) {
+            setTableOutput(tableOutput[1])
+        } else {
+            setTableOutput(tableOutput as string)
+        }
     }
 
     const doAlert = (content: string[], severity: AlertSeverity) => {
@@ -104,8 +106,8 @@ function App() {
         tableConfig,
         setTableConfig,
         setDimensionTracker,
-        rowArray,
-        setRowArray,
+        tableOutput,
+        setTableOutput,
         csvInputContent,
         setCsvInputContent,
         delimiter,

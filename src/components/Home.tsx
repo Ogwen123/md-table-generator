@@ -15,8 +15,8 @@ interface HomeProps {
     tableConfig: Config,
     setTableConfig: (config: Config) => void,
     setDimensionTracker: (dimensionTracker: number[]) => void,
-    rowArray: string[],
-    setRowArray: (rowArray: string[]) => void,
+    tableOutput: string,
+    setTableOutput: (tableOutput: string) => void,
     csvInputContent: string,
     setCsvInputContent: (content: string) => void,
     delimiter: string,
@@ -35,8 +35,8 @@ const Home = ({
     tableConfig,
     setTableConfig,
     setDimensionTracker,
-    rowArray,
-    setRowArray,
+    tableOutput,
+    setTableOutput,
     csvInputContent,
     setCsvInputContent,
     delimiter,
@@ -49,6 +49,11 @@ const Home = ({
     resetTrigger,
     setResetTrigger,
 }: HomeProps) => {
+
+    React.useEffect(() => {
+        console.log("test 1")
+        console.log(tableOutput)
+    }, [tableOutput])
 
     const updateResetTrigger = () => {
         setResetTrigger(!resetTrigger)
@@ -86,14 +91,14 @@ const Home = ({
                 setTableConfig={setTableConfig}
                 tableConfig={tableConfig}
                 generateTable={inputType === "custom" ? handleCustomGenerate : handleCSVGenerate}
-                setRowArray={setRowArray}
-                rowArray={rowArray}
+                setTableOutput={setTableOutput}
+                tableOutput={tableOutput}
                 updateResetTrigger={updateResetTrigger}
                 doAlert={doAlert}
                 inputType={inputType}
             />
             <Output
-                rowArray={rowArray}
+                tableOutput={tableOutput}
             />
         </div>
     )
