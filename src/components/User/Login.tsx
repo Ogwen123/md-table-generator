@@ -14,7 +14,7 @@ const Login = ({ user, setUser, doAlert }: LoginProps) => {
 
     const [identifier, setIdentifier] = React.useState<string>("");
     const [password, setPassword] = React.useState<string>("");
-    const [persistUser, setPersistUser] = React.useState<boolean>(false);
+    const [persistUser, setPersistUser] = React.useState<boolean>(true);
 
     const handleLogin = (e: FormEvent) => {
         e.preventDefault()
@@ -112,6 +112,7 @@ const Login = ({ user, setUser, doAlert }: LoginProps) => {
                     />
                     <FormControlLabel
                         control={<Checkbox
+                            checked={persistUser}
                             value={persistUser}
                             onChange={(e) => setPersistUser(e.target.checked)}
                             sx={{
