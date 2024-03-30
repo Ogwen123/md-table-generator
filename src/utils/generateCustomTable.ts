@@ -1,7 +1,7 @@
 import { Config } from "../exports/types";
 import configFile from "../config/table.json";
 
-export function generateCustomTable(tableConfig: Config): any[] {
+export function generateCustomTable(tableConfig: Config): string {
     const rows = tableConfig.rows;
     const columns = tableConfig.columns;
 
@@ -21,32 +21,32 @@ export function generateCustomTable(tableConfig: Config): any[] {
     //    }
     //}
 
-    const rowArray: string[] = []
+    const tableOutput: string[] = []
     //make header row
     let headerArray = []
     for (let i = 0; i < columns; i++) {
         if (tableConfig.content[`0-${i}`] === "") headerArray.push("|" + " ".padEnd(fieldLengths[i], " "))
         else headerArray.push("|" + tableConfig.content[`0-${i}`].padEnd(fieldLengths[i]))
     }
-    rowArray.push(headerArray.join("") + "|")
+    tableOutput.push(headerArray.join("") + "|")
 
     //make header seperator
     let headerSeperatorArray: string[] = []
     for (let i = 0; i < columns; i++) {
         headerSeperatorArray.push("|" + "-".padEnd(fieldLengths[i], "-"))
     }
-    rowArray.push(headerSeperatorArray.join("") + "|")
+    tableOutput.push(headerSeperatorArray.join("") + "|")
 
     //make body
     for (let i = 0; i < rows - 1; i++) {
-        let tempRowArray: string[] = []
+        let temptableOutput: string[] = []
         for (let j = 0; j < columns; j++) {
             const currentKey = `${i + 1}-${j}`
-            if (tableConfig.content[currentKey] === "") tempRowArray.push("|" + " ".padEnd(fieldLengths[j], " "))
-            else tempRowArray.push("|" + tableConfig.content[currentKey].padEnd(fieldLengths[j]))//add 2 top skip header
+            if (tableConfig.content[currentKey] === "") temptableOutput.push("|" + " ".padEnd(fieldLengths[j], " "))
+            else temptableOutput.push("|" + tableConfig.content[currentKey].padEnd(fieldLengths[j]))//add 2 top skip header
         }
-        rowArray.push(tempRowArray.join("") + "|")
+        tableOutput.push(temptableOutput.join("") + "|")
     }
     //console.log(columns)
-    return rowArray
+    return tableOutput.join("\n")
 }

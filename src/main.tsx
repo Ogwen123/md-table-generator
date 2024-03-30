@@ -8,6 +8,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { grey, teal, purple } from '@mui/material/colors'
 
 import font from "./assets/RobotoMono-Regular.ttf"
+import { BrowserRouter } from 'react-router-dom'
 
 const theme = createTheme({
     palette: {
@@ -21,6 +22,9 @@ const theme = createTheme({
         },
         background: {
             default: grey[800],
+        },
+        text: {
+            primary: "#fff"
         }
     },
     typography: {
@@ -37,6 +41,41 @@ const theme = createTheme({
                     src: `url(${font})`
                 }
             }
+        },
+        MuiList: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: grey[900],
+                    color: "white"
+                }
+            }
+        },
+        MuiDialog: {
+            styleOverrides: {
+                paper: {
+                    backgroundColor: grey[900],
+                    color: "white"
+                }
+            }
+        },
+        MuiDialogTitle: {
+            styleOverrides: {
+                root: {
+                    "& h6": {
+                        color: "white"
+                    }
+                }
+            }
+        },
+        MuiDialogContent: {
+            styleOverrides: {
+                root: {
+                    color: "white",
+                    "& p": {
+                        color: "white"
+                    }
+                }
+            }
         }
     }
 })
@@ -44,8 +83,8 @@ const theme = createTheme({
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <ThemeProvider theme={theme}>
         <CssBaseline />
-        <React.StrictMode>
+        <BrowserRouter>
             <App />
-        </React.StrictMode>
+        </BrowserRouter>
     </ThemeProvider>
 )

@@ -12,3 +12,18 @@ export module ConfigTypes {
         defaultColumns: number
     }
 }
+
+export type UserData = {
+    token: string,
+    username?: string,
+    permissions?: string[],
+    name?: string
+}
+
+export type SavedTable = {
+    _id: string,
+    createdAt: string,
+    name: string,
+    type: string,
+    tableConfig: Config
+}

@@ -1,7 +1,8 @@
 body {
     margin: 0;
     padding: 0;
-    min-height: 100vh;
+    min-height: 90vh;
+    max-width: 100%;
 
 }
 
@@ -17,7 +18,7 @@ p {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    height: 35px;
+    height: 40px;
 }
 
 .content-editor-cell {
@@ -25,14 +26,17 @@ p {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 35px;
-    width: 70px;
-    border: 1px solid white;
+    height: 40px;
+    width: 100px;
+    border-width: 1px;
+    border-color: white;
+    border-style: solid;
     overflow: hidden;
 }
 
 .content-editor-cell-header {
-    border: 3px solid white;
+    border-width: 2px;
+    border-color: white;
 }
 
 .content-editor-tl {
@@ -64,4 +68,14 @@ p {
     resize: vertical;
     color: white;
     border-radius: 5px;
+}
+
+.active-cell-disable {
+    border-color: #212121;
+    border-width: 2px;
+    outline: none;
+}
+
+.mono {
+    font-family: monospace;
 }
