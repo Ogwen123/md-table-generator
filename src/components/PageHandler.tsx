@@ -1,7 +1,7 @@
 import React from 'react'
 
 //component imports
-import Header from './AppBar'
+import Header from './NavigationBar'
 import CollapsableAlert from './CollapsableAlert'
 import { Outlet } from 'react-router-dom'
 import { UserData } from '../exports/types'
@@ -38,23 +38,15 @@ const PageHandler = ({
             {/*<Alert variant='filled' severity='info' >WIP Alert</Alert>*/}
             {user !== undefined ?
                 <div className="main">
-                    {user.flags.includes("active") ?
-                        <div>
-                            <CollapsableAlert
-                                alertContent={alertContent}
-                                alertSeverity={alertSeverity}
-                                alertOpen={alertOpen}
-                                setAlertContent={setAlertContent}
-                                setAlertSeverity={setAlertSeverity}
-                                setAlertOpen={setAlertOpen}
-                            />
-                            <Outlet />
-                        </div>
-                        :
-                        <div>
-                            Your account is disabled. Please contact table_admin@ogwen.eu.org if you think this is a mistake and I probably won't fix it.
-                        </div>
-                    }
+                    <CollapsableAlert
+                        alertContent={alertContent}
+                        alertSeverity={alertSeverity}
+                        alertOpen={alertOpen}
+                        setAlertContent={setAlertContent}
+                        setAlertSeverity={setAlertSeverity}
+                        setAlertOpen={setAlertOpen}
+                    />
+                    <Outlet />
                 </div>
                 :
                 <div>

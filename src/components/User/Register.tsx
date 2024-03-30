@@ -2,9 +2,8 @@ import { Avatar, Box, Button, Container, Grid, TextField, Typography } from '@mu
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import React, { FormEvent } from 'react'
 import { Navigate } from 'react-router-dom';
-import { getAPIUrl, validateEmail, validatePassword } from '../../utils/utils'
+import { getAPIUrl } from '../../utils/utils'
 import { AlertSeverity } from '../../exports/types'
-import axios from 'axios'
 
 interface RegisterProps {
     doAlert: (content: string[], severity: AlertSeverity) => void
@@ -12,57 +11,50 @@ interface RegisterProps {
 
 const Register = ({ doAlert }: RegisterProps) => {
 
-    const [firstname, setFirstname] = React.useState<string>("");
-    const [lastname, setLastname] = React.useState<string>("");
+    const [name, setName] = React.useState<string>("");
+    const [username, setUsername] = React.useState<string>("");
     const [email, setEmail] = React.useState<string>("");
     const [password, setPassword] = React.useState<string>("");
     const [doneRegistration, setDoneRegistration] = React.useState<boolean>(false);
 
     const handleRegister = (e: FormEvent) => {
         e.preventDefault()
-        if (!validateEmail(email)) {
-            doAlert(["Registration Details", "Please enter a valid email."], "error")
-            return
-        }
-        if (!validatePassword(password)) {
-            doAlert(["Registration Details", "Please enter a valid password."], "error")
-            return
-        }
-        if (!firstname) {
-            doAlert(["Registration Details", "Please enter a first name."], "error")
-            return
-        }
-        if (!lastname) {
-            doAlert(["Registration Details", "Please enter a last name."], "error")
-            return
-        }
+
 
         const payload = {
-            firstname: firstname,
-            lastname: lastname,
-            email: email,
-            password: password
+            name,
+            username,
+            password,
+            email
         }
 
-        axios
-            .post(getAPIUrl("auth") + "register", payload)
-            .then((response) => {
-                if (response.status === 204) {
-                    doAlert(["Registration Details", "Registration successful!"], "success")
-                    setDoneRegistration(true)
-                    return
-                } else {
-                    doAlert(["Registration Details", response.data.code + " - " + response.data.message], "error")
-                    return
-                }
-            }).catch((err) => {
-                if (!err.response) {
-                    doAlert(["Registration Error", "An unknown error occured."], "error")
-                    return
-                }
-                doAlert(["Registration Details", err.response.data.code + " - " + err.response.data.message], "error")
-                return
-            })
+        fetch(getAPIUrl("auth") + "register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        }).then((res) => {
+            if (!res.ok) {
+                res.json().then((data) => {
+                    let error = ""
+                    if (data.error instanceof Array) {
+                        error = data.error[0]
+                    } else {
+                        error = data.error
+                    }
+
+                    doAlert(["Registration Fail", error], "error")
+                })
+            } else {
+                res.json().then((data) => {
+                    doAlert(["Registration Success", data.message], "success")
+                    setTimeout(() => {
+                        setDoneRegistration(true)
+                    }, 500)
+                })
+            }
+        })
     }
 
     const inputStyling = {
@@ -94,27 +86,26 @@ const Register = ({ doAlert }: RegisterProps) => {
                 </Typography>
                 <Box component="form" noValidate onSubmit={handleRegister} sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12}>
                             <TextField
                                 autoComplete="given-name"
                                 required
                                 fullWidth
-                                label="First Name"
+                                label="Name"
                                 autoFocus
                                 sx={inputStyling}
-                                value={firstname}
-                                onChange={(e) => setFirstname(e.target.value)}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12}>
                             <TextField
                                 required
                                 fullWidth
-                                label="Last Name"
-                                autoComplete="family-name"
+                                label="Username"
                                 sx={inputStyling}
-                                value={lastname}
-                                onChange={(e) => setLastname(e.target.value)}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                             />
                         </Grid>
                         <Grid item xs={12}>

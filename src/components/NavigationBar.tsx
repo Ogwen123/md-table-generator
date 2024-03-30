@@ -5,7 +5,7 @@ import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, 
 //component imports
 import InputSwitcher from './TableGeneration/InputSwitcher';
 import { UserData } from '../exports/types';
-import { hasJWT } from '../utils/utils';
+import { getAPIUrl, hasJWT } from '../utils/utils';
 
 interface NavigationBarProps {
     inputType: 'custom' | 'csv',
@@ -18,14 +18,40 @@ const Header = ({ inputType, setInputType, user, setUser }: NavigationBarProps) 
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
+    const [alert, setAlert] = React.useState<[string, boolean]>(["", false])
+
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorElNav(event.currentTarget);
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorElUser(event.currentTarget);
     const handleCloseNavMenu = () => setAnchorElNav(null);
     const handleCloseUserMenu = () => setAnchorElUser(null);
 
     const logout = () => {
-        localStorage.removeItem("user")
-        setUser(undefined)
+        fetch(getAPIUrl("auth") + "logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ token: user?.token })
+        }).then((res) => {
+            console.log(user)
+            if (!res.ok) {
+                res.json().then((data) => {
+                    let error = ""
+                    if (data.error instanceof Array) {
+                        error = data.error[0]
+                    } else {
+                        error = data.error
+                    }
+
+                    setAlert(["Logout Failed", true])
+                })
+            } else {
+                res.json().then((data) => {
+                    localStorage.removeItem("user")
+                    setUser(undefined)
+                })
+            }
+        })
     }
 
     return (
@@ -48,38 +74,6 @@ const Header = ({ inputType, setInputType, user, setUser }: NavigationBarProps) 
                         Table Generator
                     </Typography>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
-                            color="inherit"
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{
-                                display: { xs: 'block', md: 'none' },
-                            }}
-                        >
-                            {/*pages go here if/when i add them */}
-                        </Menu>
-                    </Box>
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         <InputSwitcher inputType={inputType} setInputType={setInputType} />
                     </Box>
@@ -99,10 +93,14 @@ const Header = ({ inputType, setInputType, user, setUser }: NavigationBarProps) 
                     >
                         Table Generator
                     </Typography>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                    </Box>
 
-                    <Box sx={{ flexGrow: 0, marginRight: "2.5rem" }}>
+                    <Box sx={{ display: "flex", flexDirection: "row", flexGrow: 0, marginRight: "2.5rem", marginLeft: "auto" }}>
+                        {
+                            alert[1] &&
+                            <Typography>
+                                {alert[0]}
+                            </Typography>
+                        }
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                 <Avatar />

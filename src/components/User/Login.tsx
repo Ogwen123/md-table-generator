@@ -1,8 +1,7 @@
 import { Avatar, Box, Button, Checkbox, Container, FormControlLabel, Grid, Link, TextField, Typography } from '@mui/material';
 import React, { FormEvent } from 'react'
-import { getAPIUrl, hasJWT, validateEmail, validatePassword } from '../../utils/utils';
+import { getAPIUrl, hasJWT } from '../../utils/utils';
 import { Navigate } from 'react-router-dom';
-import axios from 'axios';
 import { AlertSeverity, UserData } from '../../exports/types';
 
 interface LoginProps {
@@ -11,44 +10,52 @@ interface LoginProps {
     doAlert: (content: string[], severity: AlertSeverity) => void
 }
 
-const Login = ({ user, setUser, doAlert: showAlert }: LoginProps) => {
+const Login = ({ user, setUser, doAlert }: LoginProps) => {
 
-    const [email, setEmail] = React.useState<string>("");
+    const [identifier, setIdentifier] = React.useState<string>("");
     const [password, setPassword] = React.useState<string>("");
     const [persistUser, setPersistUser] = React.useState<boolean>(false);
 
     const handleLogin = (e: FormEvent) => {
         e.preventDefault()
         //make sure email is valid
-        if (!validateEmail(email)) {
-            showAlert(["Login Details", "Please enter a valid email."], "error")
-            return
-        }
-        if (!validatePassword(password)) {
-            showAlert(["Login Details", "Please enter a valid password."], "error")
-            return
-        }
+
         const payload = {
-            email: email,
-            password: password
+            identifier,
+            password,
+            sendData: true
         }
 
-        //console.log(persistUser)
+        fetch(getAPIUrl("auth") + "login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        }).then((res) => {
+            if (!res.ok) {
+                res.json().then((data) => {
+                    let error = ""
+                    if (data.error instanceof Array) {
+                        error = data.error[0]
+                    } else {
+                        error = data.error
+                    }
 
-        axios//ik axios is digusting but it made it slightly easier so i used it
-            .post(getAPIUrl("auth") + "auth", payload)
-            .then((response) => {
-                //format user data
-                const userData: UserData = {
-                    ...response.data.user,
-                    token: response.data.token
-                }
-                if (persistUser) localStorage.setItem("user", JSON.stringify(userData))
-                setUser(userData)
-                //window.location.href = "/user"
-            }).catch((err) => {
-                console.log(err)
-            })
+                    doAlert(["Login Fail", error], "error")
+                })
+            } else {
+                res.json().then((data) => {
+                    doAlert(["Login Success", data.message], "success")
+                    setTimeout(() => {
+                        if (persistUser) {
+                            localStorage.setItem("user", JSON.stringify(data.data))
+                        }
+                        setUser(data.data)
+                    }, 500)
+                })
+            }
+        })
     }
 
     if (hasJWT() || user) {
@@ -83,13 +90,12 @@ const Login = ({ user, setUser, doAlert: showAlert }: LoginProps) => {
                         required
                         fullWidth
                         id="email"
-                        label="Email Address"
+                        label="Username or Email Address"
                         name="email"
-                        autoComplete="email"
                         autoFocus
                         sx={inputStyling}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
                     />
                     <TextField
                         margin="normal"

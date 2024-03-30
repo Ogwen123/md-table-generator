@@ -13,23 +13,11 @@ export module ConfigTypes {
     }
 }
 
-export type AuthResponse = {
-    success: boolean,
-    token: string,
-    user: {
-        _id: string,
-        email: string,
-        flags: string[],
-    }
-}
-
 export type UserData = {
-    _id: string,
-    firstname: string,
-    lastname: string,
-    email: string,
-    flags: string[],
-    token: string
+    token: string,
+    username?: string,
+    permissions?: string[],
+    name?: string
 }
 
 export type SavedTable = {
