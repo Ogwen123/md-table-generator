@@ -21,9 +21,25 @@ export type UserData = {
 }
 
 export type SavedTable = {
-    _id: string,
+    id: string,
     createdAt: string,
     name: string,
     type: string,
     tableConfig: Config
+}
+
+export type TableResContents = {
+    location: string,
+    content: string
+}
+
+export type TableRes = {
+    id: string,
+    user_id: string,
+    name: string,
+    type: string,
+    rows: number,
+    columns: number,
+    created_at: string,
+    table_contents: TableResContents[]
 }

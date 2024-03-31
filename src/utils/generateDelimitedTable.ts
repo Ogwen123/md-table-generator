@@ -23,8 +23,6 @@ export function generateDelimitedTable(csvString: string, delimiter: string, doA
         }
     }
 
-    console.log(longestFields)
-
     //make table headers
     let csvHeaders = ""
     const headerArray = csvRows[0].split(delimiter)
@@ -50,7 +48,6 @@ export function generateDelimitedTable(csvString: string, delimiter: string, doA
         }
         csvRowsArray.push(rowString + "|")
     }
-    console.log(csvRowsArray)
 
     return csvRowsArray.join("\n")
 }

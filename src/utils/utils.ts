@@ -1,4 +1,4 @@
-export function getAPIUrl(type: "auth" | "table") {
+export const getAPIUrl = (type: "auth" | "table") => {
     let port = ""
     let subdomain = ""
     if (type === "auth") {
@@ -15,7 +15,7 @@ export function getAPIUrl(type: "auth" | "table") {
     }
 }
 
-export function hasJWT(): boolean {
+export const hasJWT = (): boolean => {
     if (!localStorage.getItem("user")) {
         return false
     }
@@ -26,6 +26,14 @@ export function hasJWT(): boolean {
     }
 }
 
-export function getJWT(): string {
+export const getJWT = (): string => {
     return JSON.parse(localStorage.getItem("user")!).token
+}
+
+export const tsToISO = (timestamp: string) => {
+    const ts = Number(timestamp)
+
+    const date = new Date(ts)
+
+    return date.toISOString()
 }

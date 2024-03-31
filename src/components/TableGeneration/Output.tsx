@@ -11,10 +11,6 @@ interface OutputProps {
 
 const Output = ({ tableOutput }: OutputProps) => {
 
-    React.useEffect(() => {
-        console.log("test 2\n" + tableOutput)
-    }, [tableOutput])
-
     const paperStyling = {
         ...generalSpacing,
         backgroundColor: "primary.dark",

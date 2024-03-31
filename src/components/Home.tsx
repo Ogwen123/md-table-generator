@@ -27,7 +27,8 @@ interface HomeProps {
     handleCustomGenerate: (customConfig?: Config | undefined) => void,
     handleCSVGenerate: (csvContent: string, delimiter: string) => void,
     resetTrigger: boolean,
-    setResetTrigger: (resetTrigger: boolean) => void
+    setResetTrigger: (resetTrigger: boolean) => void,
+    user: UserData | undefined
 }
 
 const Home = ({
@@ -48,12 +49,8 @@ const Home = ({
     handleCSVGenerate,
     resetTrigger,
     setResetTrigger,
+    user
 }: HomeProps) => {
-
-    React.useEffect(() => {
-        console.log("test 1")
-        console.log(tableOutput)
-    }, [tableOutput])
 
     const updateResetTrigger = () => {
         setResetTrigger(!resetTrigger)
@@ -96,6 +93,7 @@ const Home = ({
                 updateResetTrigger={updateResetTrigger}
                 doAlert={doAlert}
                 inputType={inputType}
+                user={user}
             />
             <Output
                 tableOutput={tableOutput}
