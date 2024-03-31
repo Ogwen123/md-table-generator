@@ -9,8 +9,7 @@ interface RouteGuardProps {
 }
 
 const RouteGuard = ({ element, user }: RouteGuardProps) => {
-
-    if (hasJWT() || user) {
+    if (user) {
         return (element)
     } else {
         return (<Navigate to="/user/login" />)

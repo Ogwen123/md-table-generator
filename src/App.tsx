@@ -1,6 +1,5 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import axios from 'axios'
 
 //component imports
 import Home from './components/Home'
@@ -16,8 +15,7 @@ import Dashboard from './components/User/Dashboard'
 import Register from './components/User/Register'
 import RouteGuard from './components/RouteGuard'
 import NotFound from './components/Error/NotFound'
-import { hasJWT } from './utils/utils'
-import Footer from './components/Footer'
+import { getAPIUrl, hasJWT } from './utils/utils'
 
 
 let initContentStorage: Record<string, string> = { "0-0": "", "1-0": "" };
@@ -30,9 +28,8 @@ export const defaultConfigState = {
 
 function App() {
 
-
     const [tableConfig, setTableConfig] = React.useState<Config>(defaultConfigState)
-    const [tableOutput, setTableOutput] = React.useState<string>("You output will appear here")
+    const [tableOutput, setTableOutput] = React.useState<string>("Your output will appear here")
     const [showContentEditor, setShowContentEditor] = React.useState<boolean>(true)
     const [inputType, setInputType] = React.useState<"custom" | "csv">("custom")
     const [resetTrigger, setResetTrigger] = React.useState<boolean>(false)
@@ -50,7 +47,7 @@ function App() {
     const [alertOpen, setAlertOpen] = React.useState<boolean>(false)
 
     //account storage
-    const [user, setUser] = React.useState<UserData>()
+    const [user, setUser] = React.useState<UserData | undefined>()
 
     //update content object when more rows or columns are added
     React.useEffect(() => {
@@ -62,6 +59,38 @@ function App() {
         }
         setTableConfig({ ...tableConfig, content: newContentStorage })
     }, [dimensionTracker])
+
+    React.useEffect(() => {
+        if (inputType === "custom") handleCustomGenerate()
+        else if (inputType === "csv") handleCSVGenerate()
+    }, [])
+
+
+    React.useEffect(() => {//set user data from local storage on first render
+        if (!localStorage.getItem("user")) return
+
+        const storedUser = JSON.parse(localStorage.getItem("user")!)
+        const token = storedUser.token
+
+        if (token)
+            setUser({ token: token, name: storedUser.name })
+        fetch(getAPIUrl("auth") + "verify-token", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + JSON.parse(localStorage.getItem("user")!).token
+            }
+        }).then((res) => {
+            if (!res.ok) {
+                setUser({ token: token })
+            } else {
+                res.json().then((data) => {
+                    setUser({ token: token, ...data.data })
+                })
+            }
+        })
+    }, [])
+
+
 
     const handleCustomGenerate = (customConfig?: Config) => {
         const tableOutput = generateCustomTable(customConfig || tableConfig)
@@ -85,22 +114,6 @@ function App() {
         setAlertOpen(true)
     }
 
-    React.useEffect(() => {
-        if (inputType === "custom") handleCustomGenerate()
-        else if (inputType === "csv") handleCSVGenerate()
-    }, [])
-
-    React.useEffect(() => {//set user data from local storage on first render
-        if (!localStorage.getItem("user")) return
-        setUser(JSON.parse(localStorage.getItem("user")!))
-    }, [])
-
-    //axios defaults
-    if (user || hasJWT()) {
-        axios.defaults.headers.post["token"] = user?.token
-        axios.defaults.headers.get["token"] = user?.token
-    }
-
     const homeProps = {
         inputType,
         tableConfig,
@@ -118,7 +131,8 @@ function App() {
         handleCustomGenerate,
         handleCSVGenerate,
         resetTrigger,
-        setResetTrigger
+        setResetTrigger,
+        user
     }
 
     const pageHandlerProps = {

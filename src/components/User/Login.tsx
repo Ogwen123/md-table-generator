@@ -49,7 +49,7 @@ const Login = ({ user, setUser, doAlert }: LoginProps) => {
                     doAlert(["Login Success", data.message], "success")
                     setTimeout(() => {
                         if (persistUser) {
-                            localStorage.setItem("user", JSON.stringify(data.data))
+                            localStorage.setItem("user", JSON.stringify({ token: data.data.token, name: data.data.name }))
                         }
                         setUser(data.data)
                     }, 500)
@@ -58,7 +58,7 @@ const Login = ({ user, setUser, doAlert }: LoginProps) => {
         })
     }
 
-    if (hasJWT() || user) {
+    if (user) {
         return (<Navigate to="/user" />)
     }
 

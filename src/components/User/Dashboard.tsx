@@ -28,11 +28,10 @@ const subSubParentStyling = {
 }
 
 const Dashboard = ({ user, setUser, doAlert, setTableConfig }: DashboardProps) => {
-
     return (
         <div style={{ minHeight: "85vh" }}>
             <Typography sx={{ ...generalSpacing, marginTop: "3rem" }} variant="h5" >
-                Welcome, {user?.name !== undefined ? user?.name : ""}
+                Welcome, {user?.name !== undefined ? user?.name : "User"}
             </Typography>
 
 

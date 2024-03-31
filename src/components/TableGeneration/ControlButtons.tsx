@@ -6,7 +6,7 @@ import { useTheme } from '@mui/material/styles'
 //project imports
 import configFile from "../../config/controlButtons.json"
 import { defaultConfigState } from '../../App'
-import { AlertSeverity, Config } from '../../exports/types'
+import { AlertSeverity, Config, UserData } from '../../exports/types'
 import { buttonStyling } from '../../exports/styling'
 import axios from 'axios'
 import { getAPIUrl } from '../../utils/utils'
@@ -19,11 +19,12 @@ interface ControlButtonsProps {
     tableOutput: string,
     updateResetTrigger: () => void,
     doAlert: (content: string[], severity: AlertSeverity) => void,
-    inputType: "custom" | "csv"
+    inputType: "custom" | "csv",
+    user: UserData | undefined
 }
 
 
-const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setTableOutput, tableOutput, updateResetTrigger, doAlert, inputType }: ControlButtonsProps) => {
+const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setTableOutput, tableOutput, updateResetTrigger, doAlert, inputType, user }: ControlButtonsProps) => {
 
     const [openSnackbar, setOpenSnackbar] = React.useState<boolean>(false)
     const [undoConfigState, setUndoConfigState] = React.useState<Config>(defaultConfigState)
@@ -47,7 +48,6 @@ const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setTableOu
     }
 
     const handleUndo = () => {
-        console.log(undoConfigState)
         setTableConfig(undoConfigState)
         setOpenSnackbar(false)
         setTableOutput(undoOutputState)
@@ -61,24 +61,27 @@ const ControlButtons = ({ setTableConfig, tableConfig, generateTable, setTableOu
         const payload = {
             name: saveName,
             type: inputType,
-            tableConfig: tableConfig,
+            rows: tableConfig.rows,
+            columns: tableConfig.columns,
+            content: tableConfig.content
         }
         setSaveName("")
-        axios
-            .post(getAPIUrl("table") + "table/save", payload)
-            .then((response) => {
-                if (response.status === 204) {
-                    doAlert(["Save Table", "Table saved successfully. Saved tables can be viewed on the dashboard."], "success")
-                    return
-                } else {
-                    doAlert(["Error While saving", "Table could not be saved. Please try again."], "error")
-                    return
-                }
-            }).catch((err) => {
-                doAlert(["Error while saving", err.response.status + " - " + err.response.data.message], "error")
-                return
-            })
-
+        fetch(getAPIUrl("table") + "save", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + user!.token
+            },
+            body: JSON.stringify(payload)
+        }).then((res) => {
+            if (!res.ok) {
+                handleDialogClose()
+                doAlert(["Save Error", "An error occured while saving the table. Please try again."], "error")
+            } else {
+                handleDialogClose()
+                doAlert(["Save Success", "The table was successfully saved."], "success")
+            }
+        })
     }
 
     const updateSaveName = (saveName: string) => {

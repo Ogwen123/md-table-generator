@@ -1,9 +1,8 @@
 import React from 'react'
 import SavedTableCard from './SavedTableCard'
 import { Box, Button, TextField } from '@mui/material'
-import axios from 'axios'
-import { getAPIUrl, getJWT, hasJWT } from '../../../utils/utils'
-import { AlertSeverity, Config, SavedTable, UserData } from '../../../exports/types'
+import { getAPIUrl, getJWT, hasJWT, tsToISO } from '../../../utils/utils'
+import { AlertSeverity, Config, SavedTable, TableRes, UserData } from '../../../exports/types'
 import { Navigate } from 'react-router-dom'
 
 interface SavedTableViewerProps {
@@ -16,40 +15,94 @@ const SavedTableViewer = ({ doAlert, user, setTableConfig }: SavedTableViewerPro
     const [tables, setTables] = React.useState<never[] | SavedTable[]>([]);
     const [restored, setRestored] = React.useState<Boolean>(false);
     const [tableQuery, setTableQuery] = React.useState<string>("");
+    const [deletePressed, setDeletePressed] = React.useState<string[]>([]) // store the ids of the tables which have had delete pressed
+    const [resultText, setResultText] = React.useState<string>("Loading...")
+
     //get users tables
     const fetchTables = (query?: string | undefined) => {
-        let config;
-        if (hasJWT()) {
-            config = {
-                headers: {
-                    token: getJWT()
-                }
-            }
-        } else {
-            config = {}
-        }
-
         if (!query) {
-            axios
-                .get(getAPIUrl("table") + "table/get", config)
-                .then((response) => {
-                    setTables(response.data.data.tables)
-                }).catch((err) => {
+            fetch(getAPIUrl("table") + "get", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + user!.token
+                },
+                body: JSON.stringify({ page: 0 })
+            }).then((res) => {
+                if (!res.ok) {
                     doAlert(["Saved Tables Error", "There was an error fetching your tables."], "error")
-                    return
-                })
-        } else {
-            axios
-                .post(getAPIUrl("table") + "table/get/query", { query: tableQuery }, config)
-                .then((response) => {
-                    setTables(response.data.data.tables)
-                }).catch((err) => {
-                    doAlert(["Saved Tables Error", "There was an error fetching your tables."], "error")
-                    return
-                })
-        }
+                } else {
+                    res.json().then((data) => {
+                        const parsedTables = data.data.map((table: TableRes): SavedTable => {
 
+                            let content: { [loc: string]: string } = {}
+
+                            for (let i of table.table_contents) {
+                                content[i.location] = i.content
+                            }
+
+                            return {
+                                id: table.id,
+                                createdAt: tsToISO(table.created_at),
+                                name: table.name,
+                                type: table.type,
+                                tableConfig: {
+                                    rows: table.rows,
+                                    columns: table.columns,
+                                    content
+                                }
+                            }
+                        })
+                        if (parsedTables.length === 0) setResultText("You do not have any saved tables.")
+                        setTables(parsedTables)
+                    })
+                }
+            })
+        } else {
+            fetch(getAPIUrl("table") + "get/search", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + user!.token
+                },
+                body: JSON.stringify({ query: query })
+            }).then((res) => {
+                if (!res.ok) {
+                    doAlert(["Saved Tables Error", "There was an error fetching your tables."], "error")
+                } else {
+                    res.json().then((data) => {
+                        const parsedTables = data.data.map((table: TableRes): SavedTable => {
+
+                            let content: { [loc: string]: string } = {}
+
+                            for (let i of table.table_contents) {
+                                content[i.location] = i.content
+                            }
+
+                            return {
+                                id: table.id,
+                                createdAt: tsToISO(table.created_at),
+                                name: table.name,
+                                type: table.type,
+                                tableConfig: {
+                                    rows: table.rows,
+                                    columns: table.columns,
+                                    content
+                                }
+                            }
+                        })
+                        if (parsedTables.length === 0) setResultText("You do not have any saved tables.")
+                        setTables(parsedTables)
+                    })
+                }
+            })
+        }
     }
+
+    React.useEffect(() => {
+        if (!user) return
+        fetchTables()
+    }, [user])
 
     const handleRestore = (tableConfig: Config) => {
         setTableConfig(tableConfig)
@@ -60,22 +113,6 @@ const SavedTableViewer = ({ doAlert, user, setTableConfig }: SavedTableViewerPro
         if (tableQuery) fetchTables(tableQuery)
         else fetchTables()
     }
-
-    const removeTable = (tableId: string) => {
-        const newTables = [];
-        for (let i = 0; i < tables.length; i++) {
-            if (tables[i]._id !== tableId) {
-                newTables.push(tables[i])
-            }
-        }
-        setTables(newTables)
-    }
-
-    React.useEffect(() => {
-        setTimeout(() => { }, 1000)
-        fetchTables()
-    }, [])
-
 
     if (restored) return <Navigate to="/" />
     else return (
@@ -109,12 +146,12 @@ const SavedTableViewer = ({ doAlert, user, setTableConfig }: SavedTableViewerPro
                         fetchTables(tableQuery)
                     }}
                     sx={{
-                        width: "73.5%",
+                        width: "calc(75% - 0.5rem)",
                         marginTop: "1rem",
-                        marginRight: "1.5%"
+                        marginRight: "0.5rem"
                     }}
                 >
-                    Filter Tables
+                    Search
                 </Button>
                 <Button
                     variant="outlined"
@@ -124,33 +161,49 @@ const SavedTableViewer = ({ doAlert, user, setTableConfig }: SavedTableViewerPro
                         fetchTables()
                     }}
                     sx={{
-                        width: "23.5%",
+                        width: "calc(25% - 0.5rem)",
                         marginTop: "1rem",
-                        marginLeft: "1.5%"
+                        marginLeft: "0.5rem"
                     }}
                 >
                     Clear Query
                 </Button>
             </Box>
-            {tables.length === 0 ?
-                <Box>{tableQuery ? "No tables matching that query." : "You do not have any saved tables."}</Box>
-                :
-                tables.map((table, index) => {
-                    console.log(tables)
-                    return (
-                        <Box key={index} sx={{ marginBottom: "0.5rem", backgroundColor: "primary.dark", padding: "1rem", borderRadius: "5px" }}>
-                            <SavedTableCard
-                                key={index}
-                                table={table}
-                                handleRestore={handleRestore}
-                                doAlert={doAlert}
-                                refreshTables={refreshTables}
-                                removeTable={removeTable}
-                            />
-                        </Box>
-                    )
-                })
-            }</Box>
+            <Box sx={{
+                display: "flex",
+                flexWrap: "wrap",
+            }}>
+                {tables.length === 0 ?
+                    <Box>{tableQuery ? "No tables matching that query." : resultText}</Box>
+                    :
+                    tables.map((table, index) => {
+                        return (
+                            <Box key={index} sx={{
+                                marginBottom: "0.5rem",
+                                backgroundColor: "primary.dark",
+                                padding: "1rem",
+                                borderRadius: "5px",
+                                width: "30%",
+                                marginLeft: (index === 0 ? "0%" : index === tables.length - 1 ? "1.5%" : "1.5%"),
+                                marginRight: (index === 0 ? "1.5%%" : index === tables.length - 1 ? "3%" : "1.5%"),
+
+                            }}>
+                                <SavedTableCard
+                                    key={index}
+                                    table={table}
+                                    handleRestore={handleRestore}
+                                    doAlert={doAlert}
+                                    refreshTables={refreshTables}
+                                    user={user}
+                                    deletePressed={deletePressed}
+                                    setDeletePressed={setDeletePressed}
+                                />
+                            </Box>
+                        )
+                    })
+                }
+            </Box>
+        </Box>
     )
 }
 

@@ -33,7 +33,6 @@ const Header = ({ inputType, setInputType, user, setUser }: NavigationBarProps) 
             },
             body: JSON.stringify({ token: user?.token })
         }).then((res) => {
-            console.log(user)
             if (!res.ok) {
                 res.json().then((data) => {
                     let error = ""
