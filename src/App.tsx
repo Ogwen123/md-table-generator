@@ -84,7 +84,7 @@ function App() {
                 setUser({ token: token })
             } else {
                 res.json().then((data) => {
-                    setUser({ token: token, ...data.data })
+                    setUser({ token: token, name: storedUser.name, ...data.data })
                 })
             }
         })

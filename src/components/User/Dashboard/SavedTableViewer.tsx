@@ -100,9 +100,10 @@ const SavedTableViewer = ({ doAlert, user, setTableConfig }: SavedTableViewerPro
     }
 
     React.useEffect(() => {
-        if (!user) return
+        if (!user || tables.length > 0) return
+        console.log(user)
         fetchTables()
-    }, [user])
+    }, [])
 
     const handleRestore = (tableConfig: Config) => {
         setTableConfig(tableConfig)
