@@ -29,11 +29,3 @@ export const hasJWT = (): boolean => {
 export const getJWT = (): string => {
     return JSON.parse(localStorage.getItem("user")!).token
 }
-
-export const tsToISO = (timestamp: string) => {
-    const ts = Number(timestamp)
-
-    const date = new Date(ts)
-
-    return date.toISOString()
-}

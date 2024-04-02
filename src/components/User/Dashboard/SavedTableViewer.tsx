@@ -1,7 +1,7 @@
 import React from 'react'
 import SavedTableCard from './SavedTableCard'
 import { Box, Button, TextField } from '@mui/material'
-import { getAPIUrl, getJWT, hasJWT, tsToISO } from '../../../utils/utils'
+import { getAPIUrl, getJWT, hasJWT } from '../../../utils/utils'
 import { AlertSeverity, Config, SavedTable, TableRes, UserData } from '../../../exports/types'
 import { Navigate } from 'react-router-dom'
 
@@ -43,7 +43,7 @@ const SavedTableViewer = ({ doAlert, user, setTableConfig }: SavedTableViewerPro
 
                             return {
                                 id: table.id,
-                                createdAt: tsToISO(table.created_at),
+                                createdAt: table.created_at,
                                 name: table.name,
                                 type: table.type,
                                 tableConfig: {
@@ -81,7 +81,7 @@ const SavedTableViewer = ({ doAlert, user, setTableConfig }: SavedTableViewerPro
 
                             return {
                                 id: table.id,
-                                createdAt: tsToISO(table.created_at),
+                                createdAt: table.created_at,
                                 name: table.name,
                                 type: table.type,
                                 tableConfig: {
