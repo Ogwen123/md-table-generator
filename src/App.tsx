@@ -33,6 +33,7 @@ function App() {
     const [showContentEditor, setShowContentEditor] = React.useState<boolean>(true)
     const [inputType, setInputType] = React.useState<"custom" | "csv">("custom")
     const [resetTrigger, setResetTrigger] = React.useState<boolean>(false)
+    const [enabled, setEnabled] = React.useState<boolean>(true)
 
     //custom specific
     const [dimensionTracker, setDimensionTracker] = React.useState<number[]>([2, 1])//used to force a re-render when dimensions are changed
@@ -65,6 +66,32 @@ function App() {
         else if (inputType === "csv") handleCSVGenerate()
     }, [])
 
+    React.useEffect(() => {
+        let url
+        if (location.href.includes("localhost") || location.href.includes("127.0.0.1")) {
+            url = "http://localhost:3002/api/services/check"
+        } else {
+            url = "https://admin-api.owen-services.eu.org/api/services/check"
+        }
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: "4e477aaf-8014-44ea-ae08-da3a0c8b4a17"
+            })
+        }).then((res) => {
+            if (res.ok) {
+                res.json().then((data) => {
+                    if (data.data.enabled !== undefined) {
+                        setEnabled(data.data.enabled)
+                    }
+                })
+            }
+        })
+    }, [])
 
     React.useEffect(() => {//set user data from local storage on first render
         if (!localStorage.getItem("user")) return
@@ -165,17 +192,29 @@ function App() {
 
     return (
         <div>
-            <Routes>
-                <Route path="/" element={<PageHandler {...pageHandlerProps} />}>
-                    <Route index element={<Home {...homeProps} />} />
-                    <Route path="/user">
-                        <Route index element={<RouteGuard user={user} element={<Dashboard {...dashboardProps} />} />} />
-                        <Route path="/user/login" element={<Login {...loginProps} />} />
-                        <Route path="/user/register" element={<Register {...registerProps} />} />
-                    </Route>
-                    <Route path="*" element={<NotFound />} />
-                </Route>
-            </Routes>
+            {
+                enabled ?
+                    <Routes>
+                        <Route path="/" element={<PageHandler {...pageHandlerProps} />}>
+                            <Route index element={<Home {...homeProps} />} />
+                            <Route path="/user">
+                                <Route index element={<RouteGuard user={user} element={<Dashboard {...dashboardProps} />} />} />
+                                <Route path="/user/login" element={<Login {...loginProps} />} />
+                                <Route path="/user/register" element={<Register {...registerProps} />} />
+                            </Route>
+                            <Route path="*" element={<NotFound />} />
+                        </Route>
+                    </Routes>
+                    :
+                    <div style={{
+                        height: "200px",
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        fontSize: "20px"
+                    }}>This site has been disabled by an administrator.</div>
+            }
 
         </div>
     )
