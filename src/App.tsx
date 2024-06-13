@@ -61,10 +61,12 @@ function App() {
         setTableConfig({ ...tableConfig, content: newContentStorage })
     }, [dimensionTracker])
 
+
     React.useEffect(() => {
         if (inputType === "custom") handleCustomGenerate()
         else if (inputType === "csv") handleCSVGenerate()
     }, [])
+
 
     React.useEffect(() => {
         let url
@@ -93,6 +95,7 @@ function App() {
         })
     }, [])
 
+
     React.useEffect(() => {//set user data from local storage on first render
         if (!localStorage.getItem("user")) return
 
@@ -102,10 +105,12 @@ function App() {
         if (token)
             setUser({ token: token, name: storedUser.name })
         fetch(getAPIUrl("auth") + "verify-token", {
-            method: "GET",
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Authorization": "Bearer " + JSON.parse(localStorage.getItem("user")!).token
-            }
+            },
+            body: JSON.stringify({ service: "TABLE" })
         }).then((res) => {
             if (!res.ok) {
                 setUser({ token: token })

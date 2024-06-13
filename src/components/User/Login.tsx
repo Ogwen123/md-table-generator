@@ -23,6 +23,7 @@ const Login = ({ user, setUser, doAlert }: LoginProps) => {
         const payload = {
             identifier,
             password,
+            service: "TABLE",
             sendData: true
         }
 
